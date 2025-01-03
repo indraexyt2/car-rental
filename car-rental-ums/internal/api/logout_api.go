@@ -5,28 +5,35 @@ import (
 	"car-rental-ums/helpers"
 	"car-rental-ums/internal/interfaces"
 	"context"
-	"errors"
 	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
 	"net/http"
 	"time"
 )
 
-type EmailVerifyAPI struct {
-	EmailVerifySVC interfaces.IEmailVerifyService
+type LogoutAPI struct {
+	LogoutSVC interfaces.ILogoutService
 }
 
-func (api *EmailVerifyAPI) EmailVerify(c *gin.Context) {
+func (api *LogoutAPI) Logout(c *gin.Context) {
 	var (
 		log = helpers.Logger
 	)
+
 	ctx, cancel := context.WithTimeout(c.Request.Context(), time.Second*10)
 	defer cancel()
 
-	tokenEmailVerify := c.Param("token")
-
-	err := api.EmailVerifySVC.EmailVerify(ctx, tokenEmailVerify)
+	cookie, err := c.Cookie("token")
 	if err != nil {
-		log.Error("failed to verify email: ", err)
+		log.Error("failed to get token: ", err)
+		helpers.SendResponse(c, http.StatusUnauthorized, constants.StatusUnauthorized, nil)
+		c.Abort()
+		return
+	}
+
+	err = api.LogoutSVC.Logout(ctx, cookie)
+	if err != nil {
+		log.Error("failed to delete user session: ", err)
 		if errors.Is(err, context.DeadlineExceeded) {
 			helpers.SendResponse(c, http.StatusRequestTimeout, constants.StatusTimeout, nil)
 		} else {
@@ -34,6 +41,5 @@ func (api *EmailVerifyAPI) EmailVerify(c *gin.Context) {
 		}
 		return
 	}
-
 	helpers.SendResponse(c, http.StatusOK, constants.StatusSuccess, nil)
 }

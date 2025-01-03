@@ -22,7 +22,7 @@ func (api *RegisterAPI) Register(c *gin.Context) {
 		req = &models.User{}
 	)
 
-	ctx, cancel := context.WithTimeout(c.Request.Context(), time.Second*5)
+	ctx, cancel := context.WithTimeout(c.Request.Context(), time.Second*10)
 	defer cancel()
 
 	err := c.ShouldBindJSON(req)

@@ -22,7 +22,7 @@ func (api *LoginAPI) Login(c *gin.Context) {
 		log = helpers.Logger
 	)
 
-	ctx, cancel := context.WithTimeout(c.Request.Context(), time.Second*5)
+	ctx, cancel := context.WithTimeout(c.Request.Context(), time.Second*10)
 	defer cancel()
 
 	err := c.ShouldBindJSON(req)
@@ -49,6 +49,9 @@ func (api *LoginAPI) Login(c *gin.Context) {
 		}
 		return
 	}
+
+	c.SetCookie("token", resp.Token, 3600, "/", "localhost", false, true)
+	c.SetCookie("refresh_token", resp.RefreshToken, 3600*3, "/", "localhost", false, true)
 
 	helpers.SendResponse(c, http.StatusOK, constants.StatusSuccess, resp)
 }

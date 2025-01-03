@@ -38,6 +38,14 @@ func (r *UserRepo) GetUserByEmailVerifyToken(ctx context.Context, emailVerifyTok
 	return user, nil
 }
 
+func (r *UserRepo) GetUserSessionByToken(ctx context.Context, token string) (*models.UserSession, error) {
+	var (
+		userSession = &models.UserSession{}
+	)
+	r.DB.WithContext(ctx).Where("token = ?", token).Last(userSession)
+	return userSession, nil
+}
+
 func (r *UserRepo) UpdateProfile(ctx context.Context, user *models.User) error {
 	return r.DB.WithContext(ctx).Save(user).Error
 }
@@ -52,4 +60,8 @@ func (r *UserRepo) GetUserByEmail(ctx context.Context, email string) (*models.Us
 
 func (r *UserRepo) InsertNewUserSession(ctx context.Context, user *models.UserSession) error {
 	return r.DB.WithContext(ctx).Create(user).Error
+}
+
+func (r *UserRepo) DeleteUserSession(ctx context.Context, token string) error {
+	return r.DB.WithContext(ctx).Where("token = ?", token).Delete(&models.UserSession{}).Error
 }

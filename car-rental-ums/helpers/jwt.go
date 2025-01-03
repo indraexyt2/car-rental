@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"context"
 	"fmt"
 	"github.com/golang-jwt/jwt/v4"
 	"time"
@@ -21,7 +22,7 @@ var TokenType = map[string]time.Duration{
 
 var secretKey = []byte(GetEnv("JWT_SECRET_KEY"))
 
-func GenerateJWTToken(firstName, lastName, email, role, tokenType string) (string, error) {
+func GenerateJWTToken(ctx context.Context, firstName, lastName, email, role, tokenType string) (string, error) {
 	claims := &ClaimsToken{
 		FirstName: firstName,
 		LastName:  lastName,
@@ -42,26 +43,42 @@ func GenerateJWTToken(firstName, lastName, email, role, tokenType string) (strin
 	return signedString, nil
 }
 
-func ValidateToken(tokenString string) (*ClaimsToken, error) {
+func ValidateToken(ctx context.Context, tokenString string) (*ClaimsToken, error) {
 	var (
 		claims = &ClaimsToken{}
 		ok     bool
+		resp   = make(chan error)
 	)
 
-	jwtToken, err := jwt.ParseWithClaims(tokenString, claims, func(t *jwt.Token) (interface{}, error) {
-		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
+	time.Sleep(time.Second * 7)
+
+	go func() {
+		jwtToken, err := jwt.ParseWithClaims(tokenString, claims, func(t *jwt.Token) (interface{}, error) {
+			if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
+			}
+			return secretKey, nil
+		})
+
+		if err != nil {
+			resp <- fmt.Errorf("failed to validate token: %w", err)
+			return
 		}
-		return secretKey, nil
-	})
 
-	if err != nil {
-		return nil, fmt.Errorf("failed to validate token: %w", err)
+		if claims, ok = jwtToken.Claims.(*ClaimsToken); !ok && !jwtToken.Valid {
+			resp <- fmt.Errorf("failed to validate token: %w", err)
+			return
+		}
+		resp <- nil
+	}()
+
+	select {
+	case err := <-resp:
+		if err != nil {
+			return nil, err
+		}
+		return claims, nil
+	case <-ctx.Done():
+		return nil, ctx.Err()
 	}
-
-	if claims, ok = jwtToken.Claims.(*ClaimsToken); !ok && !jwtToken.Valid {
-		return nil, fmt.Errorf("failed to validate token: %w", err)
-	}
-
-	return claims, nil
 }

@@ -19,6 +19,9 @@ func ServeHTTP() {
 	userV1.GET("/resend-email-verify", d.ResendEmailVerifyAPI.ResendEmailVerify)
 	userV1.POST("/login", d.LoginApi.Login)
 
+	userV1Auth := userV1.Use(d.MiddlewareValidateAuthToken)
+	userV1Auth.DELETE("/logout", d.LogoutAPI.Logout)
+
 	err := r.Run(":" + helpers.GetEnv("APP_PORT"))
 	if err != nil {
 		helpers.Logger.Fatal("failed to run server: ", err)
@@ -26,10 +29,12 @@ func ServeHTTP() {
 }
 
 type Dependency struct {
+	UserRepository       interfaces.IUserRepository
 	RegisterAPI          interfaces.IRegisterAPI
 	EmailVerifyAPI       interfaces.IEmailVerifyAPI
 	LoginApi             interfaces.ILoginAPI
 	ResendEmailVerifyAPI interfaces.IResendEmailVerifyAPI
+	LogoutAPI            interfaces.ILogoutAPI
 }
 
 func DependencyInject() *Dependency {
@@ -47,10 +52,15 @@ func DependencyInject() *Dependency {
 	resendVerifyEmailSvc := &services.ResendEmailVerifyService{UserRepo: userRepo}
 	resendVerifyEmailApi := &api.ResendEmailVerifyAPI{ResendEmailVerifySVC: resendVerifyEmailSvc}
 
+	logoutSvc := &services.LogoutService{UserRepository: userRepo}
+	logoutApi := &api.LogoutAPI{LogoutSVC: logoutSvc}
+
 	return &Dependency{
+		UserRepository:       userRepo,
 		RegisterAPI:          registerApi,
 		EmailVerifyAPI:       verifyEmailApi,
 		LoginApi:             loginApi,
 		ResendEmailVerifyAPI: resendVerifyEmailApi,
+		LogoutAPI:            logoutApi,
 	}
 }

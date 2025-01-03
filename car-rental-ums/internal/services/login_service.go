@@ -36,12 +36,12 @@ func (s *LoginService) Login(ctx context.Context, request *models.LoginRequest) 
 	}
 
 	// generate token
-	token, err := helpers.GenerateJWTToken(user.FirstName, user.LastName, user.Email, user.Role, "token")
+	token, err := helpers.GenerateJWTToken(ctx, user.FirstName, user.LastName, user.Email, user.Role, "token")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to generate token")
 	}
 
-	refreshToken, err := helpers.GenerateJWTToken(user.FirstName, user.LastName, user.Email, user.Role, "refresh_token")
+	refreshToken, err := helpers.GenerateJWTToken(ctx, user.FirstName, user.LastName, user.Email, user.Role, "refresh_token")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to generate refresh token")
 	}

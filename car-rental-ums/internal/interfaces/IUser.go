@@ -11,6 +11,8 @@ type IUserRepository interface {
 	GetUserByRefreshToken(ctx context.Context, refreshToken string) (*models.User, error)
 	GetUserByEmailVerifyToken(ctx context.Context, emailVerifyToken string) (*models.User, error)
 	GetUserByEmail(ctx context.Context, email string) (*models.User, error)
+	GetUserSessionByToken(ctx context.Context, token string) (*models.UserSession, error)
 	UpdateProfile(ctx context.Context, user *models.User) error
 	InsertNewUserSession(ctx context.Context, user *models.UserSession) error
+	DeleteUserSession(ctx context.Context, token string) error
 }

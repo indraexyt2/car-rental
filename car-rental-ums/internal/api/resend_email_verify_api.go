@@ -22,7 +22,7 @@ func (api *ResendEmailVerifyAPI) ResendEmailVerify(c *gin.Context) {
 		req = &models.ResendEmailVerifyRequest{}
 	)
 
-	ctx, cancel := context.WithTimeout(c.Request.Context(), time.Second*5)
+	ctx, cancel := context.WithTimeout(c.Request.Context(), time.Second*10)
 	defer cancel()
 
 	// validate
