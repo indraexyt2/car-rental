@@ -4,6 +4,7 @@ import (
 	"car-rental-ums/helpers"
 	"car-rental-ums/internal/interfaces"
 	"car-rental-ums/internal/models"
+	"context"
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -12,13 +13,13 @@ type LoginService struct {
 	UserRepo interfaces.IUserRepository
 }
 
-func (s *LoginService) Login(request *models.LoginRequest) (*models.LoginResponse, error) {
+func (s *LoginService) Login(ctx context.Context, request *models.LoginRequest) (*models.LoginResponse, error) {
 	var (
 		resp = &models.LoginResponse{}
 	)
 
 	// get user
-	user, err := s.UserRepo.GetUserByEmail(request.Email)
+	user, err := s.UserRepo.GetUserByEmail(ctx, request.Email)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get user by email")
 	}
@@ -52,7 +53,7 @@ func (s *LoginService) Login(request *models.LoginRequest) (*models.LoginRespons
 		RefreshToken: refreshToken,
 	}
 
-	err = s.UserRepo.InsertNewUserSession(userSession)
+	err = s.UserRepo.InsertNewUserSession(ctx, userSession)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to insert new user session")
 	}

@@ -5,8 +5,11 @@ import (
 	"car-rental-ums/helpers"
 	"car-rental-ums/internal/interfaces"
 	"car-rental-ums/internal/models"
+	"context"
 	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
 	"net/http"
+	"time"
 )
 
 type ResendEmailVerifyAPI struct {
@@ -18,6 +21,9 @@ func (api *ResendEmailVerifyAPI) ResendEmailVerify(c *gin.Context) {
 		log = helpers.Logger
 		req = &models.ResendEmailVerifyRequest{}
 	)
+
+	ctx, cancel := context.WithTimeout(c.Request.Context(), time.Second*5)
+	defer cancel()
 
 	// validate
 	err := c.ShouldBindJSON(req)
@@ -35,10 +41,14 @@ func (api *ResendEmailVerifyAPI) ResendEmailVerify(c *gin.Context) {
 	}
 
 	// service
-	err = api.ResendEmailVerifySVC.ResendEmailVerify(req)
+	err = api.ResendEmailVerifySVC.ResendEmailVerify(ctx, req)
 	if err != nil {
 		log.Error("failed to resend email verify: ", err)
-		helpers.SendResponse(c, http.StatusBadRequest, err.Error(), nil)
+		if errors.Is(err, context.DeadlineExceeded) {
+			helpers.SendResponse(c, http.StatusRequestTimeout, constants.StatusTimeout, nil)
+		} else {
+			helpers.SendResponse(c, http.StatusBadGateway, constants.StatusServerError, nil)
+		}
 		return
 	}
 

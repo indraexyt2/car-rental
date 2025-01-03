@@ -3,6 +3,7 @@ package services
 import (
 	"car-rental-ums/internal/interfaces"
 	"car-rental-ums/internal/models"
+	"context"
 	"crypto/rand"
 	"encoding/base64"
 	"github.com/pkg/errors"
@@ -13,7 +14,7 @@ type RegisterService struct {
 	UserRepository interfaces.IUserRepository
 }
 
-func (s *RegisterService) Register(request *models.User) (*models.User, error) {
+func (s *RegisterService) Register(ctx context.Context, request *models.User) (*models.User, error) {
 	// hash password
 	hashPassword, err := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
 	if err != nil {
@@ -37,7 +38,7 @@ func (s *RegisterService) Register(request *models.User) (*models.User, error) {
 	request.VerificationToken = tokenEmailVerify
 	request.Password = string(hashPassword)
 
-	err = s.UserRepository.Create(request)
+	err = s.UserRepository.Create(ctx, request)
 	if err != nil {
 		return nil, errors.Wrap(err, " failed to create user")
 	}

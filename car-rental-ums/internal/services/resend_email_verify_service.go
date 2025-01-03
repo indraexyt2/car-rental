@@ -3,6 +3,7 @@ package services
 import (
 	"car-rental-ums/internal/interfaces"
 	"car-rental-ums/internal/models"
+	"context"
 	"crypto/rand"
 	"encoding/base64"
 	"github.com/pkg/errors"
@@ -12,9 +13,9 @@ type ResendEmailVerifyService struct {
 	UserRepo interfaces.IUserRepository
 }
 
-func (s *ResendEmailVerifyService) ResendEmailVerify(email *models.ResendEmailVerifyRequest) error {
+func (s *ResendEmailVerifyService) ResendEmailVerify(ctx context.Context, email *models.ResendEmailVerifyRequest) error {
 	// get user
-	user, err := s.UserRepo.GetUserByEmail(email.Email)
+	user, err := s.UserRepo.GetUserByEmail(ctx, email.Email)
 	if err != nil {
 		return errors.Wrap(err, " failed to get user by email")
 	}
@@ -34,7 +35,7 @@ func (s *ResendEmailVerifyService) ResendEmailVerify(email *models.ResendEmailVe
 
 	// update user
 	user.VerificationToken = tokenEmailVerify
-	err = s.UserRepo.UpdateProfile(user)
+	err = s.UserRepo.UpdateProfile(ctx, user)
 	if err != nil {
 		return errors.Wrap(err, " failed to update token email verify")
 	}

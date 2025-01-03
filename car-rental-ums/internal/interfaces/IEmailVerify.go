@@ -1,9 +1,12 @@
 package interfaces
 
-import "github.com/gin-gonic/gin"
+import (
+	"context"
+	"github.com/gin-gonic/gin"
+)
 
 type IEmailVerifyService interface {
-	EmailVerify(emailVerifyToken string) error
+	EmailVerify(ctx context.Context, emailVerifyToken string) error
 }
 
 type IEmailVerifyAPI interface {

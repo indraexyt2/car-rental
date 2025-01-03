@@ -2,6 +2,7 @@ package repository
 
 import (
 	"car-rental-ums/internal/models"
+	"context"
 	"gorm.io/gorm"
 )
 
@@ -9,46 +10,46 @@ type UserRepo struct {
 	DB *gorm.DB
 }
 
-func (r *UserRepo) Create(user *models.User) error {
-	return r.DB.Create(user).Error
+func (r *UserRepo) Create(ctx context.Context, user *models.User) error {
+	return r.DB.WithContext(ctx).Create(user).Error
 }
 
-func (r *UserRepo) GetUserByToken(token string) (*models.User, error) {
+func (r *UserRepo) GetUserByToken(ctx context.Context, token string) (*models.User, error) {
 	var (
 		user = &models.User{}
 	)
-	r.DB.Where("token = ?", token).Last(user)
+	r.DB.WithContext(ctx).Where("token = ?", token).Last(user)
 	return user, nil
 }
 
-func (r *UserRepo) GetUserByRefreshToken(refreshToken string) (*models.User, error) {
+func (r *UserRepo) GetUserByRefreshToken(ctx context.Context, refreshToken string) (*models.User, error) {
 	var (
 		user = &models.User{}
 	)
-	r.DB.Where("token = ?", refreshToken).Last(user)
+	r.DB.WithContext(ctx).Where("token = ?", refreshToken).Last(user)
 	return user, nil
 }
 
-func (r *UserRepo) GetUserByEmailVerifyToken(emailVerifyToken string) (*models.User, error) {
+func (r *UserRepo) GetUserByEmailVerifyToken(ctx context.Context, emailVerifyToken string) (*models.User, error) {
 	var (
 		user = &models.User{}
 	)
-	r.DB.Where("verification_token = ?", emailVerifyToken).Last(user)
+	r.DB.WithContext(ctx).Where("verification_token = ?", emailVerifyToken).Last(user)
 	return user, nil
 }
 
-func (r *UserRepo) UpdateProfile(user *models.User) error {
-	return r.DB.Save(user).Error
+func (r *UserRepo) UpdateProfile(ctx context.Context, user *models.User) error {
+	return r.DB.WithContext(ctx).Save(user).Error
 }
 
-func (r *UserRepo) GetUserByEmail(email string) (*models.User, error) {
+func (r *UserRepo) GetUserByEmail(ctx context.Context, email string) (*models.User, error) {
 	var (
 		user = &models.User{}
 	)
-	r.DB.Where("email = ?", email).Last(user)
+	r.DB.WithContext(ctx).Where("email = ?", email).Last(user)
 	return user, nil
 }
 
-func (r *UserRepo) InsertNewUserSession(user *models.UserSession) error {
-	return r.DB.Create(user).Error
+func (r *UserRepo) InsertNewUserSession(ctx context.Context, user *models.UserSession) error {
+	return r.DB.WithContext(ctx).Create(user).Error
 }
