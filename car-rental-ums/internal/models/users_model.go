@@ -59,3 +59,12 @@ type LoginResponse struct {
 	Token        string `json:"token"`
 	RefreshToken string `json:"refresh_token"`
 }
+
+type ResendEmailVerifyRequest struct {
+	Email string `json:"email" validate:"required"`
+}
+
+func (I *ResendEmailVerifyRequest) Validate() error {
+	v := validator.New()
+	return v.Struct(I)
+}
