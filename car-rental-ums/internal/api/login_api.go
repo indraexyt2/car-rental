@@ -9,14 +9,14 @@ import (
 	"net/http"
 )
 
-type RegisterAPI struct {
-	RegisterSVC interfaces.IRegisterService
+type LoginAPI struct {
+	LoginSVC interfaces.ILoginService
 }
 
-func (api *RegisterAPI) Register(c *gin.Context) {
+func (api *LoginAPI) Login(c *gin.Context) {
 	var (
+		req = &models.LoginRequest{}
 		log = helpers.Logger
-		req = &models.User{}
 	)
 
 	err := c.ShouldBindJSON(req)
@@ -26,16 +26,17 @@ func (api *RegisterAPI) Register(c *gin.Context) {
 		return
 	}
 
-	if err := req.Validate(); err != nil {
+	err = req.Validate()
+	if err != nil {
 		log.Error("failed to validate request: ", err)
 		helpers.SendResponse(c, http.StatusBadRequest, constants.StatusBadRequest, nil)
 		return
 	}
 
-	resp, err := api.RegisterSVC.Register(req)
+	resp, err := api.LoginSVC.Login(req)
 	if err != nil {
-		log.Error("failed to register user: ", err)
-		helpers.SendResponse(c, http.StatusInternalServerError, constants.StatusBadRequest, nil)
+		log.Error("failed to login: ", err)
+		helpers.SendResponse(c, http.StatusInternalServerError, err.Error(), nil)
 		return
 	}
 

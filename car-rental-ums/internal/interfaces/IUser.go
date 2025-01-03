@@ -7,5 +7,7 @@ type IUserRepository interface {
 	GetUserByToken(token string) (*models.User, error)
 	GetUserByRefreshToken(refreshToken string) (*models.User, error)
 	GetUserByEmailVerifyToken(emailVerifyToken string) (*models.User, error)
+	GetUserByEmail(email string) (*models.User, error)
 	UpdateProfile(user *models.User) error
+	InsertNewUserSession(user *models.UserSession) error
 }

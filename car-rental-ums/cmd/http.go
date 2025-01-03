@@ -15,7 +15,8 @@ func ServeHTTP() {
 
 	userV1 := r.Group("/api/user/v1")
 	userV1.POST("/register", d.RegisterAPI.Register)
-	userV1.POST("/email-verify/:token", d.EmailVerifyAPI.EmailVerify)
+	userV1.PUT("/email-verify/:token", d.EmailVerifyAPI.EmailVerify)
+	userV1.POST("/login", d.LoginApi.Login)
 
 	err := r.Run(":" + helpers.GetEnv("APP_PORT"))
 	if err != nil {
@@ -26,6 +27,7 @@ func ServeHTTP() {
 type Dependency struct {
 	RegisterAPI    interfaces.IRegisterAPI
 	EmailVerifyAPI interfaces.IEmailVerifyAPI
+	LoginApi       interfaces.ILoginAPI
 }
 
 func DependencyInject() *Dependency {
@@ -37,8 +39,12 @@ func DependencyInject() *Dependency {
 	verifyEmailSvc := &services.EmailVerifyService{UserRepo: userRepo}
 	verifyEmailApi := &api.EmailVerifyAPI{EmailVerifySVC: verifyEmailSvc}
 
+	loginSvc := &services.LoginService{UserRepo: userRepo}
+	loginApi := &api.LoginAPI{LoginSVC: loginSvc}
+
 	return &Dependency{
 		RegisterAPI:    registerApi,
 		EmailVerifyAPI: verifyEmailApi,
+		LoginApi:       loginApi,
 	}
 }

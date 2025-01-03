@@ -21,7 +21,7 @@ func (api *EmailVerifyAPI) EmailVerify(c *gin.Context) {
 	err := api.EmailVerifySVC.EmailVerify(tokenEmailVerify)
 	if err != nil {
 		log.Error("failed to verify email: ", err)
-		helpers.SendResponse(c, http.StatusBadRequest, constants.StatusBadRequest, nil)
+		helpers.SendResponse(c, http.StatusBadRequest, err.Error(), nil)
 		return
 	}
 

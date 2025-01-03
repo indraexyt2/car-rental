@@ -40,3 +40,15 @@ func (r *UserRepo) GetUserByEmailVerifyToken(emailVerifyToken string) (*models.U
 func (r *UserRepo) UpdateProfile(user *models.User) error {
 	return r.DB.Save(user).Error
 }
+
+func (r *UserRepo) GetUserByEmail(email string) (*models.User, error) {
+	var (
+		user = &models.User{}
+	)
+	r.DB.Where("email = ?", email).Last(user)
+	return user, nil
+}
+
+func (r *UserRepo) InsertNewUserSession(user *models.UserSession) error {
+	return r.DB.Create(user).Error
+}

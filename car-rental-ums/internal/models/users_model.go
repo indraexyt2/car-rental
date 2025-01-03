@@ -42,3 +42,20 @@ type UserSession struct {
 func (*UserSession) TableName() string {
 	return "user_sessions"
 }
+
+type LoginRequest struct {
+	Email    string `json:"email" validate:"required"`
+	Password string `json:"password" validate:"required"`
+}
+
+func (I *LoginRequest) Validate() error {
+	v := validator.New()
+	return v.Struct(I)
+}
+
+type LoginResponse struct {
+	UserID       uint   `json:"user_id"`
+	Email        string `json:"email"`
+	Token        string `json:"token"`
+	RefreshToken string `json:"refresh_token"`
+}
