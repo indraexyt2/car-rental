@@ -10,13 +10,13 @@ type User struct {
 	FirstName         string    `gorm:"type:varchar(100);not null" validate:"required" json:"first_name"`
 	LastName          string    `gorm:"type:varchar(100);not null" validate:"required" json:"last_name"`
 	Email             string    `gorm:"type:varchar(100);not null;unique" validate:"required" json:"email"`
-	Password          string    `gorm:"type:varchar(255);not null" validate:"required" json:"password"`
-	PhoneNumber       string    `gorm:"type:varchar(20);" validate:"required" json:"phone_umber"`
+	Password          string    `gorm:"type:varchar(255);not null" validate:"required" json:"password,omitempty"`
+	PhoneNumber       string    `gorm:"type:varchar(20);" validate:"required" json:"phone_number"`
 	Address           string    `gorm:"type:text;" json:"address"`
-	BirthDate         time.Time `gorm:"type:date;" json:"birth_date"`
+	BirthDate         string    `gorm:"type:date;" json:"birth_date"`
 	Role              string    `gorm:"type:enum('admin','user');not null" json:"role"`
 	IsVerified        bool      `gorm:"default:false" json:"is_verified"`
-	VerificationToken string    `gorm:"type:varchar(500);"`
+	VerificationToken string    `gorm:"type:varchar(500);" json:"verification_token,omitempty"`
 	CreatedAt         time.Time `gorm:"autoCreateTime"`
 	UpdatedAt         time.Time `gorm:"autoCreateTime;autoUpdateTime"`
 }

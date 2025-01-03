@@ -1,8 +1,8 @@
 package main
 
 import (
-	"car-rental-framework/cmd"
-	"car-rental-framework/helpers"
+	"car-rental-ums/cmd"
+	"car-rental-ums/helpers"
 )
 
 func main() {
